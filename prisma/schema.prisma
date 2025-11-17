@@ -21,12 +21,20 @@ model Organization {
   // Issuer/Company Information
   ruc              String   @unique // RUC de la empresa
   dv               String   // Dígito verificador
+  tipoRuc          String   @default("02") // Tipo de RUC: 01=Natural, 02=Jurídica, 03=Extranjero
   razonSocial      String   // Razón social (nombre legal)
   nombreComercial  String?  // Nombre comercial
   direccion        String?  // Dirección fiscal
   telefono         String?  // Teléfono
   email            String   // Email corporativo
   actividadEconomica String? // Actividad económica principal
+
+  // Geographic Location (DGI Requirements)
+  provincia        String?  // Código de provincia
+  distrito         String?  // Código de distrito
+  corregimiento    String?  // Código de corregimiento
+  latitud          String?  // Latitud (opcional)
+  longitud         String?  // Longitud (opcional)
 
   // Billing Points Configuration
   codigoSucursal       String @default("001") // Código de sucursal (3 dígitos)
@@ -104,6 +112,12 @@ model Invoice {
   puntoFacturacionFiscal String // 001
   tipoEmision        String @default("01") // 01=Normal, 02=Contingencia
 
+  // DGI Additional Fields
+  codigoSeguridad    String? // Código de seguridad (8 dígitos numéricos)
+  naturalezaOperacion String @default("01") // 01=Venta, 02=Exportación, etc.
+  tipoOperacion      String @default("01") // 01=Venta, 02=Servicio, 03=Mixto
+  dProtocoloAutorizacion String? // Protocolo de autorización DGI
+
   // Receptor Information
   tipoReceptor       String // 01=Contribuyente, 02=Consumidor Final
   receptorRuc        String?
@@ -166,8 +180,10 @@ model InvoiceItem {
   invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   // Item Data
+  codigoProducto String? @db.VarChar(50) // Código del producto/servicio
   descripcion String @db.VarChar(500)
   cantidad    Decimal @db.Decimal(10, 2)
+  unidadMedida String @default("UND") // UND, KG, LT, etc.
   precioUnitario Decimal @db.Decimal(12, 2)
   valorTotal  Decimal @db.Decimal(12, 2)
 
