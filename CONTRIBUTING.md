@@ -4,7 +4,7 @@
 
 ### Rama Principal de Desarrollo
 
-**Rama**: `claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJgE`
+**Rama**: `claude/main-01KNKiQXDHeEXofvQ3HmxJgE`
 
 Esta es la rama principal del proyecto. Todos los desarrollos se realizan **directamente** en esta rama.
 
@@ -14,7 +14,7 @@ Este proyecto se desarrolla en un entorno específico que requiere que las ramas
 - Comiencen con el prefijo `claude/`
 - Terminen con el session ID correspondiente
 
-Por esta razón, la rama `claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJgE` actúa como nuestra rama principal.
+Por esta razón, la rama `claude/main-01KNKiQXDHeEXofvQ3HmxJgE` actúa como nuestra rama principal.
 
 ---
 
@@ -24,7 +24,7 @@ Por esta razón, la rama `claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJg
 
 1. **Asegúrate de estar en la rama principal**:
    ```bash
-   git checkout claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJgE
+   git checkout claude/main-01KNKiQXDHeEXofvQ3HmxJgE
    git pull
    ```
 
@@ -37,12 +37,14 @@ Por esta razón, la rama `claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJg
 
 3. **Subir cambios**:
    ```bash
-   git push origin claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJgE
+   git push origin claude/main-01KNKiQXDHeEXofvQ3HmxJgE
    ```
 
-### Tipos de Commits
+### Convención de Commits en Español
 
-Seguimos la convención de commits semánticos:
+**IMPORTANTE**: Todos los commits deben escribirse **completamente en español** para facilitar la comprensión del proyecto y mantener un trabajo profesional.
+
+Seguimos la convención de commits semánticos con descripciones claras y concisas:
 
 - `feat:` - Nueva funcionalidad
 - `fix:` - Corrección de bugs
@@ -52,12 +54,38 @@ Seguimos la convención de commits semánticos:
 - `test:` - Añadir tests
 - `chore:` - Tareas de mantenimiento
 
-**Ejemplos**:
+**Ejemplos de Commits Profesionales**:
 ```bash
-git commit -m "feat: Implementar endpoint de anulación de facturas"
-git commit -m "fix: Corregir cálculo de ITBMS en items"
-git commit -m "docs: Actualizar guía de instalación"
+# Nuevas funcionalidades
+git commit -m "feat: Implementar sistema completo de autenticación con NextAuth"
+git commit -m "feat: Agregar endpoint de anulación de facturas con validación DGI"
+git commit -m "feat: Integrar sincronización de tiempo con API pública de Panama"
+
+# Correcciones
+git commit -m "fix: Corregir cálculo de ITBMS en items con múltiples tasas"
+git commit -m "fix: Resolver error de validación en credenciales HKA"
+git commit -m "fix: Ajustar zona horaria en timestamps de facturas"
+
+# Documentación
+git commit -m "docs: Actualizar guía de instalación con requisitos de Redis"
+git commit -m "docs: Agregar documentación de API de sincronización de tiempo"
+git commit -m "docs: Actualizar README con nueva estructura de ramas"
+
+# Refactorización
+git commit -m "refactor: Reorganizar estructura de carpetas de componentes"
+git commit -m "refactor: Mejorar manejo de errores en servicios HKA"
+
+# Mantenimiento
+git commit -m "chore: Actualizar dependencias de producción a últimas versiones"
+git commit -m "chore: Configurar variables de entorno para producción"
 ```
+
+**Guía para Escribir Buenos Commits**:
+- ✅ Usa verbos en infinitivo: "Implementar", "Agregar", "Corregir", "Actualizar"
+- ✅ Sé específico y descriptivo: explica QUÉ cambió y POR QUÉ
+- ✅ Mantén la primera línea en menos de 72 caracteres
+- ❌ Evita mensajes genéricos como "fix bug" o "update file"
+- ❌ No uses spanglish ni mezcles idiomas
 
 ---
 
