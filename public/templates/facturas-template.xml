@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<facturas>
+  <!-- Ejemplo 1: Factura a Contribuyente (RUC) -->
+  <factura>
+    <numeroDocumentoFiscal>FAC-2024-001</numeroDocumentoFiscal>
+    <tipoReceptor>01</tipoReceptor>
+    <numeroRUC>123456789</numeroRUC>
+    <digitoVerificadorRUC>01</digitoVerificadorRUC>
+    <razonSocial>EMPRESA DEMO SA</razonSocial>
+    <direccion>Ave Balboa, Ciudad de Panama</direccion>
+    <correoElectronico>cliente@empresa.com</correoElectronico>
+    <fechaEmision>2024-01-15</fechaEmision>
+    <formaPago>1</formaPago>
+    <informacionAdicional>Orden de Compra: OC-12345</informacionAdicional>
+    <items>
+      <item>
+        <descripcion>SERVICIO DE CONSULTORIA</descripcion>
+        <cantidad>10</cantidad>
+        <unidadMedida>UND</unidadMedida>
+        <precioUnitario>100.00</precioUnitario>
+        <tasaItbms>01</tasaItbms>
+        <valorDescuento>0</valorDescuento>
+      </item>
+      <item>
+        <descripcion>SOPORTE TECNICO</descripcion>
+        <cantidad>5</cantidad>
+        <unidadMedida>UND</unidadMedida>
+        <precioUnitario>50.00</precioUnitario>
+        <tasaItbms>01</tasaItbms>
+        <valorDescuento>10.00</valorDescuento>
+      </item>
+    </items>
+  </factura>
+
+  <!-- Ejemplo 2: Factura a Consumidor Final (sin RUC) -->
+  <factura>
+    <numeroDocumentoFiscal>FAC-2024-002</numeroDocumentoFiscal>
+    <tipoReceptor>02</tipoReceptor>
+    <razonSocial>JUAN PEREZ</razonSocial>
+    <direccion>Panama</direccion>
+    <correoElectronico>juan@email.com</correoElectronico>
+    <fechaEmision>2024-01-16</fechaEmision>
+    <formaPago>1</formaPago>
+    <items>
+      <item>
+        <descripcion>PRODUCTO A</descripcion>
+        <cantidad>2</cantidad>
+        <unidadMedida>UND</unidadMedida>
+        <precioUnitario>25.00</precioUnitario>
+        <tasaItbms>01</tasaItbms>
+        <valorDescuento>0</valorDescuento>
+      </item>
+      <item>
+        <descripcion>PRODUCTO B</descripcion>
+        <cantidad>3</cantidad>
+        <unidadMedida>UND</unidadMedida>
+        <precioUnitario>15.00</precioUnitario>
+        <tasaItbms>02</tasaItbms>
+        <valorDescuento>5.00</valorDescuento>
+      </item>
+    </items>
+  </factura>
+</facturas>
+
+<!--
+NOTAS IMPORTANTES:
+
+1. Tipos de Receptor (tipoReceptor):
+   - 01: Contribuyente (requiere RUC)
+   - 02: Consumidor Final (sin RUC)
+
+2. Tasas ITBMS (tasaItbms):
+   - 00: 0% (exento)
+   - 01: 7%
+   - 02: 10%
+   - 03: 15%
+
+3. Forma de Pago (formaPago):
+   - 1: Contado
+   - 2: Crédito
+
+4. Unidades de Medida (unidadMedida):
+   - UND: Unidades
+   - KG: Kilogramos
+   - LB: Libras
+   - MT: Metros
+   - etc.
+
+5. Fechas deben estar en formato: YYYY-MM-DD
+
+6. Cada factura puede tener múltiples items
+-->

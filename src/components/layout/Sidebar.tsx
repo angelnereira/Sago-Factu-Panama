@@ -15,6 +15,7 @@ const navigationItems = [
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: '📊' },
       { name: 'Nueva Factura', href: '/invoices/new', icon: '➕' },
+      { name: 'Importar Facturas', href: '/invoices/import', icon: '📥' },
       { name: 'Facturas Recientes', href: '/invoices', icon: '📄' },
     ],
   },

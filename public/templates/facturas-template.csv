@@ -1,0 +1,5 @@
+numeroDocumentoFiscal,tipoReceptor,numeroRUC,digitoVerificadorRUC,razonSocial,direccion,correoElectronico,fechaEmision,formaPago,descripcion,cantidad,unidad,precioUnitario,tasaItbms,descuento
+FAC-2024-001,01,123456789,01,EMPRESA DEMO SA,Ave Balboa Ciudad de Panama,cliente@empresa.com,2024-01-15,1,SERVICIO DE CONSULTORIA,10,UND,100.00,01,0
+FAC-2024-001,01,123456789,01,EMPRESA DEMO SA,Ave Balboa Ciudad de Panama,cliente@empresa.com,2024-01-15,1,SOPORTE TECNICO,5,UND,50.00,01,10
+FAC-2024-002,02,,,JUAN PEREZ,Panama,juan@email.com,2024-01-16,1,PRODUCTO A,2,UND,25.00,01,0
+FAC-2024-002,02,,,JUAN PEREZ,Panama,juan@email.com,2024-01-16,1,PRODUCTO B,3,UND,15.00,02,5
