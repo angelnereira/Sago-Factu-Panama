@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// MULTI-TENANT CORE MODELS
+// ============================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  ruc       String   @unique // RUC de la empresa
+  dv        String   // Dígito verificador
+  email     String
+  phone     String?
+  address   String?
+
+  // HKA Configuration (BYOC - Bring Your Own Credentials)
+  hkaEnvironment    HKAEnvironment @default(DEMO) // DEMO o PRODUCTION
+  hkaTokenEmpresa   String? // Encriptado AES-256
+  hkaTokenPassword  String? // Encriptado AES-256
+  hkaValidated      Boolean @default(false) // Si se validó la conexión con FoliosRestantes
+  hkaFoliosRestantes Int? // Cache de folios disponibles
+  hkaLastSync       DateTime? // Última sincronización con HKA
+
+  // Digital Certificate Configuration
+  certificatePfx    Bytes? // Certificado .pfx almacenado
+  certificatePassword String? // Password del certificado (encriptado)
+  certificateExpiry DateTime? // Fecha de expiración del certificado
+
+  // Billing Points Configuration
+  defaultSucursal   String @default("0000") // Código de sucursal
+  defaultPuntoFacturacion String @default("001") // Punto de facturación
+
+  // Metadata
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users     User[]
+  invoices  Invoice[]
+  auditLogs AuditLog[]
+
+  @@index([ruc])
+  @@index([hkaEnvironment])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String // Hashed with bcrypt
+  role          UserRole  @default(USER)
+
+  // Multi-tenant
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  invoicesCreated Invoice[] @relation("InvoiceCreator")
+  auditLogs       AuditLog[]
+
+  @@index([email])
+  @@index([organizationId])
+}
+
+// ============================================
+// INVOICE MODELS (Core Business Logic)
+// ============================================
+
+model Invoice {
+  id        String   @id @default(cuid())
+
+  // Organization (Multi-tenant)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Document Identification
+  tipoDocumento      String @default("01") // 01=Factura, 04=NC, 05=ND
+  numeroDocumentoFiscal String // Número secuencial
+  codigoSucursalEmisor  String // 0000
+  puntoFacturacionFiscal String // 001
+  tipoEmision        String @default("01") // 01=Normal, 02=Contingencia
+
+  // Receptor Information
+  tipoReceptor       String // 01=Contribuyente, 02=Consumidor Final
+  receptorRuc        String?
+  receptorDv         String?
+  receptorNombre     String
+  receptorEmail      String?
+  receptorTelefono   String?
+  receptorDireccion  String?
+
+  // Financial Data
+  subtotal           Decimal @db.Decimal(12, 2)
+  totalItbms         Decimal @db.Decimal(12, 2)
+  totalDescuento     Decimal @db.Decimal(12, 2) @default(0)
+  totalMontoGravado  Decimal @db.Decimal(12, 2)
+  totalFactura       Decimal @db.Decimal(12, 2)
+
+  // Payment Information
+  formaPago          String // 01=Crédito, 02=Contado, etc
+
+  // HKA Integration Fields
+  status             InvoiceStatus @default(DRAFT)
+  cufe               String? @unique // Código Único de Factura Electrónica
+  hkaStatus          String? // Estado reportado por HKA
+  hkaResponseCode    String? // Código de respuesta HKA
+  hkaResponseMessage String? @db.Text
+  hkaResponse        Json? // Respuesta completa de HKA
+  xmlSigned          String? @db.Text // XML firmado por HKA (Base64)
+  pdfBase64          String? @db.Text // PDF generado por HKA (Base64)
+  qrCode             String? // Código QR de validación
+  qrUrl              String? // URL del QR
+
+  // Processing Metadata
+  enqueuedAt         DateTime? // Cuando se encoló
+  processingStartedAt DateTime? // Cuando el worker lo tomó
+  processedAt        DateTime? // Cuando terminó (éxito o fallo)
+  retryCount         Int @default(0) // Número de reintentos
+  lastError          String? @db.Text // Último error encontrado
+
+  // Business Metadata
+  createdBy   String
+  creator     User @relation("InvoiceCreator", fields: [createdBy], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  items       InvoiceItem[]
+  auditLogs   AuditLog[]
+
+  @@unique([organizationId, numeroDocumentoFiscal, tipoDocumento])
+  @@index([organizationId])
+  @@index([status])
+  @@index([cufe])
+  @@index([createdAt])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Item Data
+  descripcion String @db.VarChar(500)
+  cantidad    Decimal @db.Decimal(10, 2)
+  precioUnitario Decimal @db.Decimal(12, 2)
+  valorTotal  Decimal @db.Decimal(12, 2)
+
+  // Tax Information
+  tasaItbms   String // 00=0%, 01=7%, 02=10%, 03=15%
+  valorItbms  Decimal @db.Decimal(12, 2)
+
+  // Discounts
+  descuento   Decimal @db.Decimal(12, 2) @default(0)
+
+  @@index([invoiceId])
+}
+
+// ============================================
+// AUDIT & LOGGING
+// ============================================
+
+model AuditLog {
+  id        String   @id @default(cuid())
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  action    String // CREATE, UPDATE, DELETE, HKA_SEND, HKA_RESPONSE, etc
+  entity    String // Invoice, Organization, User, etc
+  details   Json?
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([invoiceId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum HKAEnvironment {
+  DEMO
+  PRODUCTION
+}
+
+enum UserRole {
+  SUPER_ADMIN // Administrador de la plataforma SaaS
+  ADMIN       // Administrador de organización
+  USER        // Usuario regular
+}
+
+enum InvoiceStatus {
+  DRAFT              // Borrador, no enviado
+  QUEUED             // En cola para procesamiento
+  PROCESSING         // Worker procesando
+  AUTHORIZED         // Autorizada por HKA (éxito)
+  REJECTED           // Rechazada por HKA (error de validación)
+  FAILED             // Falló el procesamiento (error técnico)
+  CANCELLED          // Anulada por el usuario
+  ANNULLED           // Anulada en HKA
+}
