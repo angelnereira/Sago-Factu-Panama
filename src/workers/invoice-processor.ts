@@ -94,10 +94,10 @@ async function processInvoice(job: Job<ProcessInvoiceJobData>) {
     const xml = generateInvoiceXML(invoice as any, {
       ruc: organization.ruc,
       dv: organization.dv,
-      nombre: organization.name,
-      direccion: organization.address || '',
-      codigoSucursal: organization.defaultSucursal,
-      puntoFacturacion: organization.defaultPuntoFacturacion,
+      nombre: organization.razonSocial,
+      direccion: organization.direccion || '',
+      codigoSucursal: organization.codigoSucursal,
+      puntoFacturacion: organization.puntoFacturacion,
     });
 
     const xmlBase64 = xmlToBase64(xml);

@@ -144,8 +144,8 @@ export async function POST(request: NextRequest) {
           // Document identification
           tipoDocumento: validatedData.tipoDocumento,
           numeroDocumentoFiscal: nextNumber,
-          codigoSucursalEmisor: organization.defaultSucursal,
-          puntoFacturacionFiscal: organization.defaultPuntoFacturacion,
+          codigoSucursalEmisor: organization.codigoSucursal,
+          puntoFacturacionFiscal: organization.puntoFacturacion,
           tipoEmision: validatedData.tipoEmision,
 
           // Receptor

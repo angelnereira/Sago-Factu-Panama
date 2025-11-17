@@ -17,12 +17,20 @@ datasource db {
 
 model Organization {
   id        String   @id @default(cuid())
-  name      String
-  ruc       String   @unique // RUC de la empresa
-  dv        String   // Dígito verificador
-  email     String
-  phone     String?
-  address   String?
+
+  // Issuer/Company Information
+  ruc              String   @unique // RUC de la empresa
+  dv               String   // Dígito verificador
+  razonSocial      String   // Razón social (nombre legal)
+  nombreComercial  String?  // Nombre comercial
+  direccion        String?  // Dirección fiscal
+  telefono         String?  // Teléfono
+  email            String   // Email corporativo
+  actividadEconomica String? // Actividad económica principal
+
+  // Billing Points Configuration
+  codigoSucursal       String @default("001") // Código de sucursal (3 dígitos)
+  puntoFacturacion     String @default("001") // Punto de facturación fiscal (3 dígitos)
 
   // HKA Configuration (BYOC - Bring Your Own Credentials)
   hkaEnvironment    HKAEnvironment @default(DEMO) // DEMO o PRODUCTION
@@ -33,13 +41,10 @@ model Organization {
   hkaLastSync       DateTime? // Última sincronización con HKA
 
   // Digital Certificate Configuration
-  certificatePfx    Bytes? // Certificado .pfx almacenado
-  certificatePassword String? // Password del certificado (encriptado)
-  certificateExpiry DateTime? // Fecha de expiración del certificado
-
-  // Billing Points Configuration
-  defaultSucursal   String @default("0000") // Código de sucursal
-  defaultPuntoFacturacion String @default("001") // Punto de facturación
+  certificadoDigital   String? // Certificado .pfx/.p12 en base64
+  certificadoPassword  String? // Password del certificado (encriptado AES-256)
+  certificadoEmisor    String? // Emisor del certificado (CA)
+  certificadoVigencia  String? // Fecha de vigencia del certificado
 
   // Metadata
   active    Boolean @default(true)
