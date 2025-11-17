@@ -22,7 +22,7 @@ interface Client {
 
 export default function NewInvoicePage() {
   const [client, setClient] = useState<Client | undefined>();
-  const [formaPago, setFormaPago] = useState(FORMA_PAGO.CONTADO);
+  const [formaPago, setFormaPago] = useState<string>(FORMA_PAGO.CONTADO);
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       descripcion: '',

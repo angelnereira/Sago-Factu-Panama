@@ -11,7 +11,8 @@
  * Use this client in production for maximum reliability.
  */
 
-import { HKASOAPClient, HKACredentials, type HKAEnvironmentType } from './soap-client';
+import { HKASOAPClient, HKACredentials } from './soap-client';
+import type { HKAEnvironmentType } from '@/config/hka.config';
 import { CircuitBreaker, createHKACircuitBreaker, CircuitBreakerOpenError } from './circuit-breaker';
 import {
   classifyHKAError,

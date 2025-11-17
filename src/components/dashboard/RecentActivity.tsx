@@ -7,7 +7,7 @@
 'use client';
 
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus } from '@/lib/prisma';
 
 interface Activity {
   id: string;

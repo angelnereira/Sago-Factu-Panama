@@ -8,7 +8,7 @@
  */
 
 import { create } from 'xmlbuilder2';
-import { Invoice, InvoiceItem } from '@prisma/client';
+import { Invoice, InvoiceItem } from '@/lib/prisma';
 import {
   TIPO_DOCUMENTO,
   TIPO_EMISION,
@@ -58,50 +58,50 @@ export function generateInvoiceXML(
   const encabezado = root.ele('dEncab');
 
   // Tipo de documento
-  encabezado.ele('dTipoDE', {}, invoice.tipoDocumento);
+  encabezado.ele('dTipoDE').txt(invoice.tipoDocumento);
 
   // Número de documento
-  encabezado.ele('dNroDF', {}, invoice.numeroDocumentoFiscal);
+  encabezado.ele('dNroDF').txt(invoice.numeroDocumentoFiscal);
 
   // Punto de facturación y sucursal
-  encabezado.ele('dPtoFacDF', {}, invoice.puntoFacturacionFiscal);
-  encabezado.ele('dSucFacDF', {}, invoice.codigoSucursalEmisor);
+  encabezado.ele('dPtoFacDF').txt(invoice.puntoFacturacionFiscal);
+  encabezado.ele('dSucFacDF').txt(invoice.codigoSucursalEmisor);
 
   // Fecha de emisión (formato ISO 8601 para Panamá)
   const fechaEmision = invoice.createdAt.toISOString().split('.')[0] + '-05:00';
-  encabezado.ele('dFechaEm', {}, fechaEmision);
+  encabezado.ele('dFechaEm').txt(fechaEmision);
 
   // Tipo de emisión
-  encabezado.ele('dTipoEmision', {}, invoice.tipoEmision);
+  encabezado.ele('dTipoEmision').txt(invoice.tipoEmision);
 
   // 2. Emisor (Organization)
   const emisor = root.ele('gEmis');
 
-  emisor.ele('dRucEm', {}, organization.ruc);
-  emisor.ele('dDVEm', {}, organization.dv);
-  emisor.ele('dNombEm', {}, organization.nombre);
-  emisor.ele('dDirecEm', {}, organization.direccion);
+  emisor.ele('dRucEm').txt(organization.ruc);
+  emisor.ele('dDVEm').txt(organization.dv);
+  emisor.ele('dNombEm').txt(organization.nombre);
+  emisor.ele('dDirecEm').txt(organization.direccion);
 
   // 3. Receptor (Customer)
   const receptor = root.ele('gRecep');
 
-  receptor.ele('dTipoRecep', {}, invoice.tipoReceptor);
-  receptor.ele('dNombRec', {}, invoice.receptorNombre);
+  receptor.ele('dTipoRecep').txt(invoice.tipoReceptor);
+  receptor.ele('dNombRec').txt(invoice.receptorNombre);
 
   if (invoice.tipoReceptor === TIPO_RECEPTOR.CONTRIBUYENTE && invoice.receptorRuc) {
-    receptor.ele('dRucRec', {}, invoice.receptorRuc);
+    receptor.ele('dRucRec').txt(invoice.receptorRuc);
     if (invoice.receptorDv) {
-      receptor.ele('dDVRec', {}, invoice.receptorDv);
+      receptor.ele('dDVRec').txt(invoice.receptorDv);
     }
   }
 
   if (invoice.receptorDireccion) {
-    receptor.ele('dDirecRec', {}, invoice.receptorDireccion);
+    receptor.ele('dDirecRec').txt(invoice.receptorDireccion);
   }
 
   if (invoice.receptorEmail) {
-    receptor.ele('dTelefonoRec', {}, invoice.receptorTelefono || '');
-    receptor.ele('dCorreoRec', {}, invoice.receptorEmail);
+    receptor.ele('dTelefonoRec').txt(invoice.receptorTelefono || '');
+    receptor.ele('dCorreoRec').txt(invoice.receptorEmail);
   }
 
   // 4. Items (Líneas de factura)
@@ -111,63 +111,63 @@ export function generateInvoiceXML(
     const itemNode = items.ele('gDatosItem');
 
     // Número de ítem
-    itemNode.ele('dNroItem', {}, (index + 1).toString());
+    itemNode.ele('dNroItem').txt((index + 1).toString());
 
     // Descripción
-    itemNode.ele('dDescItem', {}, item.descripcion);
+    itemNode.ele('dDescItem').txt(item.descripcion);
 
     // Cantidad
-    itemNode.ele('dCantItem', {}, item.cantidad.toFixed(2));
+    itemNode.ele('dCantItem').txt(item.cantidad.toFixed(2));
 
     // Precio unitario
-    itemNode.ele('dPrecItem', {}, item.precioUnitario.toFixed(2));
+    itemNode.ele('dPrecItem').txt(item.precioUnitario.toFixed(2));
 
     // Precio total del ítem (sin impuestos)
     const precioTotal = Number(item.cantidad) * Number(item.precioUnitario);
-    itemNode.ele('dPrecTotItem', {}, precioTotal.toFixed(2));
+    itemNode.ele('dPrecTotItem').txt(precioTotal.toFixed(2));
 
     // Descuento (si aplica)
     if (Number(item.descuento) > 0) {
-      itemNode.ele('dDescuentoItem', {}, item.descuento.toFixed(2));
+      itemNode.ele('dDescuentoItem').txt(item.descuento.toFixed(2));
     }
 
     // ITBMS del ítem
     const itbmsItem = itemNode.ele('gITBMSItem');
-    itbmsItem.ele('dTasaITBMS', {}, item.tasaItbms);
-    itbmsItem.ele('dValITBMS', {}, item.valorItbms.toFixed(2));
+    itbmsItem.ele('dTasaITBMS').txt(item.tasaItbms);
+    itbmsItem.ele('dValITBMS').txt(item.valorItbms.toFixed(2));
 
     // Valor total del ítem (con impuestos)
-    itemNode.ele('dValTotItem', {}, item.valorTotal.toFixed(2));
+    itemNode.ele('dValTotItem').txt(item.valorTotal.toFixed(2));
   });
 
   // 5. Totales
   const totales = root.ele('gTotales');
 
   // Subtotal (sin impuestos)
-  totales.ele('dSubTotal', {}, invoice.subtotal.toFixed(2));
+  totales.ele('dSubTotal').txt(invoice.subtotal.toFixed(2));
 
   // Total descuentos
   if (Number(invoice.totalDescuento) > 0) {
-    totales.ele('dTotalDesc', {}, invoice.totalDescuento.toFixed(2));
+    totales.ele('dTotalDesc').txt(invoice.totalDescuento.toFixed(2));
   }
 
   // Total ITBMS
-  totales.ele('dTotITBMS', {}, invoice.totalItbms.toFixed(2));
+  totales.ele('dTotITBMS').txt(invoice.totalItbms.toFixed(2));
 
   // Monto total gravado
-  totales.ele('dTotalGravado', {}, invoice.totalMontoGravado.toFixed(2));
+  totales.ele('dTotalGravado').txt(invoice.totalMontoGravado.toFixed(2));
 
   // Total de la factura
-  totales.ele('dTotalFact', {}, invoice.totalFactura.toFixed(2));
+  totales.ele('dTotalFact').txt(invoice.totalFactura.toFixed(2));
 
   // 6. Información de pago
   const pago = root.ele('gFormaPago');
-  pago.ele('dFormaPago', {}, invoice.formaPago);
+  pago.ele('dFormaPago').txt(invoice.formaPago);
 
   // Si es crédito, podríamos agregar información adicional
   if (invoice.formaPago === FORMA_PAGO.CREDITO) {
     // Aquí se podrían agregar condiciones de crédito si están disponibles
-    // pago.ele('dCondCredito', {}, 'NET30');
+    // pago.ele('dCondCredito').txt('NET30');
   }
 
   // Generate XML string

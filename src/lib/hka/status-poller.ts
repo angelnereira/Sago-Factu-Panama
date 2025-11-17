@@ -14,11 +14,9 @@
  * This balances responsiveness with efficiency.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { createHKAClient, DocumentData } from './soap-client';
 import { decrypt } from '@/lib/encryption';
-
-const prisma = new PrismaClient();
 
 /**
  * Polling intervals (in milliseconds)
@@ -229,7 +227,8 @@ export async function pollPendingInvoices(): Promise<void> {
 
   // Poll each invoice (in parallel, but limited)
   const results = await Promise.allSettled(
-    pendingInvoices.map((invoice) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pendingInvoices.map((invoice: any) =>
       pollDocumentStatus(invoice.id, 3) // Limit to 3 attempts in batch mode
     )
   );

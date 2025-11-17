@@ -9,11 +9,9 @@
  * "fallen through the cracks" during normal processing.
  */
 
-import { PrismaClient, InvoiceStatus } from '@prisma/client';
+import { prisma, InvoiceStatus } from '@/lib/prisma';
 import { createHKAClient, DocumentData } from '@/lib/hka/soap-client';
 import { decrypt } from '@/lib/encryption';
-
-const prisma = new PrismaClient();
 
 interface ReconciliationReport {
   totalChecked: number;

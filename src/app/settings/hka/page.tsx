@@ -85,51 +85,54 @@ export default function HKAConfigPage() {
         </div>
 
         {/* Current Status */}
-        {currentConfig && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Estado Actual
-                </h2>
-                <div className="space-y-2 text-sm">
-                  <p className="text-gray-600">
-                    Ambiente:{' '}
-                    <span className="font-medium text-gray-900">
-                      {currentConfig.environment}
-                    </span>
-                  </p>
-                  <p className="text-gray-600">
-                    Estado:{' '}
-                    <span
-                      className={`font-medium ${
-                        currentConfig.validated
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}
-                    >
-                      {currentConfig.validated ? '✓ Validado' : '✗ No validado'}
-                    </span>
-                  </p>
-                  {currentConfig.foliosRestantes !== undefined && (
+        {currentConfig && (() => {
+          const config = currentConfig as HKAConfig;
+          return (
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                    Estado Actual
+                  </h2>
+                  <div className="space-y-2 text-sm">
                     <p className="text-gray-600">
-                      Folios disponibles:{' '}
-                      <span className="font-bold text-gray-900">
-                        {currentConfig.foliosRestantes}
+                      Ambiente:{' '}
+                      <span className="font-medium text-gray-900">
+                        {config.environment}
                       </span>
                     </p>
-                  )}
+                    <p className="text-gray-600">
+                      Estado:{' '}
+                      <span
+                        className={`font-medium ${
+                          config.validated
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        }`}
+                      >
+                        {config.validated ? '✓ Validado' : '✗ No validado'}
+                      </span>
+                    </p>
+                    {config.foliosRestantes !== undefined && (
+                      <p className="text-gray-600">
+                        Folios disponibles:{' '}
+                        <span className="font-bold text-gray-900">
+                          {config.foliosRestantes}
+                        </span>
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {currentConfig.validated && (
-                <div className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-                  Activo
-                </div>
-              )}
+                {config.validated && (
+                  <div className="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
+                    Activo
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Configuration Form */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">

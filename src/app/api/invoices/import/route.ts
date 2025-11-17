@@ -10,10 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseInvoiceFile } from '@/lib/import/parsers';
 import { mapInvoices, MappedInvoiceData } from '@/lib/import/field-mapper';
-import { PrismaClient, InvoiceStatus } from '@prisma/client';
+import { prisma, InvoiceStatus } from '@/lib/prisma';
 import { enqueueInvoiceProcessing } from '@/lib/queue/jobs';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
@@ -152,7 +150,8 @@ async function createAndEnqueueInvoices(
   for (const invoiceData of invoices) {
     try {
       // Create invoice with items in transaction
-      const invoice = await prisma.$transaction(async (tx) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const invoice = await prisma.$transaction(async (tx: any) => {
         // Get next invoice number from organization
         const org = await tx.organization.findUnique({
           where: { id: organizationId },

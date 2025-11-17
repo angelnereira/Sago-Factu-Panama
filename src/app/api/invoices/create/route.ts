@@ -16,8 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { InvoiceStatus } from '@prisma/client';
+import { prisma, InvoiceStatus } from '@/lib/prisma';
 import { enqueueInvoiceProcessing } from '@/lib/queue/jobs';
 import { calculateInvoiceTotals } from '@/lib/hka/xml-generator';
 import {
@@ -134,7 +133,8 @@ export async function POST(request: NextRequest) {
     })));
 
     // Create invoice with items in transaction
-    const invoice = await prisma.$transaction(async (tx) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const invoice = await prisma.$transaction(async (tx: any) => {
       // Create invoice
       const inv = await tx.invoice.create({
         data: {

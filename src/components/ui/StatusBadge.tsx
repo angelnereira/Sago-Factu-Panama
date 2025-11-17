@@ -4,7 +4,7 @@
  * Visual indicator for invoice status with color coding
  */
 
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus } from '@/lib/prisma';
 
 interface StatusBadgeProps {
   status: InvoiceStatus;

@@ -11,10 +11,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { encrypt, decrypt } from '@/lib/encryption';
-
-const prisma = new PrismaClient();
 
 /**
  * GET - Retrieve organization settings

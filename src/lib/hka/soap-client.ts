@@ -120,7 +120,7 @@ export class HKASOAPClient {
 
     try {
       this.soapClient = await soap.createClientAsync(wsdl, {
-        timeout: HKA_LIMITS.CONNECTION_TIMEOUT_MS,
+        // Note: timeout not supported in IOptions type, handled via Promise.race elsewhere
         disableCache: false,
       });
 

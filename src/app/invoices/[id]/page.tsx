@@ -9,7 +9,7 @@
 import { useParams } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus } from '@/lib/prisma';
 
 interface InvoiceDetail {
   id: string;

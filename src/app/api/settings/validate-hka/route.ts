@@ -7,7 +7,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createHKAClient, type HKAEnvironmentType } from '@/lib/hka/soap-client';
+import { createHKAClient } from '@/lib/hka/soap-client';
+import type { HKAEnvironmentType } from '@/config/hka.config';
 
 export async function POST(request: NextRequest) {
   try {

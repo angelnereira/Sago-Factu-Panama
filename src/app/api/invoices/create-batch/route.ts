@@ -8,11 +8,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, InvoiceStatus } from '@prisma/client';
+import { prisma, InvoiceStatus } from '@/lib/prisma';
 import { MappedInvoiceData } from '@/lib/import/field-mapper';
 import { enqueueInvoiceProcessing } from '@/lib/queue/jobs';
-
-const prisma = new PrismaClient();
 
 interface CreateBatchRequest {
   organizationId: string;
@@ -103,7 +101,8 @@ export async function POST(request: NextRequest) {
         }
 
         // Create invoice with items in transaction
-        const invoice = await prisma.$transaction(async (tx) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const invoice = await prisma.$transaction(async (tx: any) => {
           const codigoSucursalEmisor = organization.codigoSucursal || '001';
           const puntoFacturacionFiscal = organization.puntoFacturacion || '001';
 

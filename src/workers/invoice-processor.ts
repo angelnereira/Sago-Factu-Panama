@@ -14,15 +14,13 @@
  */
 
 import { Worker, Job } from 'bullmq';
-import { PrismaClient, InvoiceStatus } from '@prisma/client';
+import { prisma, InvoiceStatus } from '@/lib/prisma';
 import { getRedisConnection, QUEUE_NAMES, JOB_TYPES } from '@/lib/queue/config';
 import { ProcessInvoiceJobData } from '@/lib/queue/jobs';
 import { createHKAClient, HKACredentials } from '@/lib/hka/soap-client';
 import { generateInvoiceXML, xmlToBase64, validateInvoiceData } from '@/lib/hka/xml-generator';
 import { decrypt } from '@/lib/encryption';
 import { isHKASuccess } from '@/config/hka.config';
-
-const prisma = new PrismaClient();
 
 /**
  * Process a single invoice

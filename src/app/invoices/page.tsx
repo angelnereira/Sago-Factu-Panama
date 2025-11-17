@@ -10,7 +10,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { InvoiceStatus } from '@prisma/client';
+import { InvoiceStatus } from '@/lib/prisma';
 
 interface Invoice {
   id: string;
