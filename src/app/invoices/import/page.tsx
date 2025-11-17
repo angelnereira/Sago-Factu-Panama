@@ -6,13 +6,14 @@
  * Allows users to upload files (xlsx, xls, csv, xml) and bulk import invoices.
  * Features:
  * - Drag & drop file upload
- * - Preview before sending
+ * - Editable form preview before sending
  * - Direct send option
  * - Template download links
  */
 
 import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { InvoiceFormEditor } from '@/components/invoices/InvoiceFormEditor';
 import { MappedInvoiceData } from '@/lib/import/field-mapper';
 
 interface ImportStats {
@@ -114,7 +115,7 @@ export default function InvoiceImportPage() {
       setErrors(result.errors || []);
 
       if (result.preview) {
-        // Show preview
+        // Show editable preview
         setPreviewInvoices(result.invoices);
       } else {
         // Direct send - show success
@@ -127,31 +128,95 @@ export default function InvoiceImportPage() {
     }
   };
 
+  const handleUpdateInvoice = (index: number, updatedInvoice: MappedInvoiceData) => {
+    const updated = [...previewInvoices];
+    updated[index] = updatedInvoice;
+    setPreviewInvoices(updated);
+  };
+
+  const handleDeleteInvoice = (index: number) => {
+    const updated = previewInvoices.filter((_, i) => i !== index);
+    setPreviewInvoices(updated);
+
+    // Update stats
+    if (stats) {
+      setStats({
+        ...stats,
+        valid: updated.length,
+        total: stats.total,
+      });
+    }
+  };
+
+  const handleAddNewInvoice = () => {
+    const newInvoice: MappedInvoiceData = {
+      tipoReceptor: '01',
+      tipoContribuyente: '1',
+      numeroRUC: '',
+      digitoVerificadorRUC: '',
+      razonSocial: '',
+      direccion: '',
+      correoElectronico: '',
+      tipoDocumento: '01',
+      numeroDocumentoFiscal: '',
+      fechaEmision: new Date(),
+      formaPago: '1',
+      items: [
+        {
+          descripcion: '',
+          cantidad: 1,
+          unidadMedida: 'UND',
+          precioUnitario: 0,
+          precioTotal: 0,
+          tasaItbms: '01',
+          valorItbms: 0,
+          valorDescuento: 0,
+          valorTotal: 0,
+        },
+      ],
+      subtotal: 0,
+      totalItbms: 0,
+      totalDescuento: 0,
+      totalFactura: 0,
+    };
+
+    setPreviewInvoices([...previewInvoices, newInvoice]);
+  };
+
   const handleConfirmSend = async () => {
-    if (!file) return;
+    if (previewInvoices.length === 0) {
+      alert('No hay facturas para enviar');
+      return;
+    }
 
     setIsUploading(true);
-    setSendDirectly(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('organizationId', organizationId);
-      formData.append('sendDirectly', 'true');
-
-      const response = await fetch('/api/invoices/import', {
+      // Send edited invoices directly to creation endpoint
+      const response = await fetch('/api/invoices/create-batch', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organizationId,
+          invoices: previewInvoices,
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        alert(`Error: ${result.error}\n${result.details || ''}`);
+        alert(`Error: ${result.error}`);
         return;
       }
 
-      setStats(result.stats);
+      setStats({
+        total: previewInvoices.length,
+        valid: result.created?.length || 0,
+        invalid: result.errors?.length || 0,
+        created: result.created?.length || 0,
+      });
       setErrors(result.errors || []);
       setImportSuccess(true);
       setPreviewInvoices([]);
@@ -176,7 +241,8 @@ export default function InvoiceImportPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Importar Facturas</h1>
         <p className="text-gray-600 mt-1">
-          Cargue facturas en lote desde archivos Excel, CSV o XML
+          Cargue facturas en lote desde archivos Excel, CSV o XML, o cree facturas
+          manualmente
         </p>
       </div>
 
@@ -212,7 +278,7 @@ export default function InvoiceImportPage() {
       </div>
 
       {/* Upload Area */}
-      {!importSuccess && (
+      {!importSuccess && previewInvoices.length === 0 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div
             className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
@@ -262,7 +328,7 @@ export default function InvoiceImportPage() {
           </div>
 
           {/* Options */}
-          {file && !previewInvoices.length && (
+          {file && (
             <div className="mt-6 space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -272,7 +338,7 @@ export default function InvoiceImportPage() {
                   className="w-4 h-4"
                 />
                 <span className="text-sm text-gray-700">
-                  Enviar directamente a HKA (sin preview)
+                  Enviar directamente a HKA (sin edición)
                 </span>
               </label>
 
@@ -285,16 +351,31 @@ export default function InvoiceImportPage() {
                   ? 'Procesando...'
                   : sendDirectly
                   ? '🚀 Cargar y Enviar'
-                  : '👁️ Cargar y Previsualizar'}
+                  : '✏️ Cargar para Editar'}
               </button>
             </div>
           )}
+
+          {/* Or create manually */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-3">
+                ¿No tiene un archivo? Cree facturas manualmente
+              </p>
+              <button
+                onClick={handleAddNewInvoice}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+              >
+                ➕ Crear Factura Manual
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-4 gap-4 mt-6">
+      {stats && !importSuccess && (
+        <div className="grid grid-cols-3 gap-4 mt-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
             <div className="text-sm text-gray-600">Total en archivo</div>
@@ -307,17 +388,11 @@ export default function InvoiceImportPage() {
             <div className="text-2xl font-bold text-red-600">{stats.invalid}</div>
             <div className="text-sm text-gray-600">Con errores</div>
           </div>
-          {stats.created !== undefined && (
-            <div className="bg-white rounded-lg shadow-sm border border-blue-200 p-4">
-              <div className="text-2xl font-bold text-blue-600">{stats.created}</div>
-              <div className="text-sm text-gray-600">Procesadas</div>
-            </div>
-          )}
         </div>
       )}
 
       {/* Errors */}
-      {errors.length > 0 && (
+      {errors.length > 0 && !importSuccess && (
         <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="font-semibold text-red-900 mb-2">❌ Errores Encontrados</h3>
           <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -333,60 +408,45 @@ export default function InvoiceImportPage() {
         </div>
       )}
 
-      {/* Preview */}
-      {previewInvoices.length > 0 && (
+      {/* Editable Preview */}
+      {previewInvoices.length > 0 && !importSuccess && (
         <div className="mt-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">
-              📋 Previsualización ({previewInvoices.length} facturas)
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              📝 Facturas para Revisar y Editar ({previewInvoices.length})
             </h3>
+            <button
+              onClick={handleAddNewInvoice}
+              className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+            >
+              ➕ Agregar Otra Factura
+            </button>
+          </div>
 
-            <div className="overflow-x-auto max-h-96">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Número</th>
-                    <th className="px-4 py-2 text-left">Cliente</th>
-                    <th className="px-4 py-2 text-left">Fecha</th>
-                    <th className="px-4 py-2 text-right">Items</th>
-                    <th className="px-4 py-2 text-right">Subtotal</th>
-                    <th className="px-4 py-2 text-right">ITBMS</th>
-                    <th className="px-4 py-2 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewInvoices.map((invoice, index) => (
-                    <tr key={index} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium">
-                        {invoice.numeroDocumentoFiscal}
-                      </td>
-                      <td className="px-4 py-3">{invoice.razonSocial}</td>
-                      <td className="px-4 py-3">
-                        {new Date(invoice.fechaEmision).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3 text-right">{invoice.items.length}</td>
-                      <td className="px-4 py-3 text-right">
-                        ${invoice.subtotal.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        ${invoice.totalItbms.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-3 text-right font-semibold">
-                        ${invoice.totalFactura.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="space-y-4 mb-6">
+            {previewInvoices.map((invoice, index) => (
+              <InvoiceFormEditor
+                key={index}
+                invoice={invoice}
+                index={index}
+                onChange={handleUpdateInvoice}
+                onDelete={handleDeleteInvoice}
+              />
+            ))}
+          </div>
 
-            <div className="flex gap-3 mt-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex gap-3">
               <button
                 onClick={handleConfirmSend}
                 disabled={isUploading}
                 className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-400"
               >
-                {isUploading ? 'Procesando...' : '✅ Confirmar y Enviar a HKA'}
+                {isUploading
+                  ? 'Procesando...'
+                  : `✅ Confirmar y Enviar ${previewInvoices.length} Factura${
+                      previewInvoices.length > 1 ? 's' : ''
+                    } a HKA`}
               </button>
               <button
                 onClick={handleReset}
