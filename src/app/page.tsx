@@ -26,16 +26,16 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link
-              href="/dashboard"
+              href="/auth/login"
               className="px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg"
             >
-              🚀 Ir al Dashboard
+              🔐 Iniciar Sesión
             </Link>
             <Link
-              href="/invoices/new"
+              href="/auth/register"
               className="px-8 py-4 border-2 border-blue-600 text-blue-600 text-lg font-semibold rounded-lg hover:bg-blue-50 transition-colors"
             >
-              ➕ Nueva Factura
+              ✨ Crear Cuenta Gratis
             </Link>
           </div>
         </div>
