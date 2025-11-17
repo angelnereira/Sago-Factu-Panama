@@ -1,10 +1,12 @@
 /**
  * Header Component
  *
- * Contains organization selector, folios indicator, notifications, and user menu
+ * Contains organization selector, synced clock, folios indicator, notifications, and user menu
  */
 
 'use client';
+
+import { SyncedClock } from '@/components/common/SyncedClock';
 
 export function Header() {
   // TODO: Connect to real data from API
@@ -30,7 +32,12 @@ export function Header() {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
+          {/* Synced Clock */}
+          <div className="border-l border-gray-200 pl-6">
+            <SyncedClock compact showDate showSeconds showSyncStatus />
+          </div>
+
           {/* Folios Indicator */}
           <div
             className={`px-4 py-2 rounded-lg font-medium text-sm ${getFolioColorClass(
