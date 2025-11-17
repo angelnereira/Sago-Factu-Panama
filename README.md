@@ -4,6 +4,9 @@
 
 Sistema Multi-Tenant de facturación electrónica integrado con The Factory HKA (PAC autorizado por la DGI de Panamá).
 
+> **Rama Principal**: `claude/saas-async-architecture-01KNKiQXDHeEXofvQ3HmxJgE`
+> Todos los desarrollos se realizan directamente en esta rama.
+
 ---
 
 ## 🎯 Características Principales
